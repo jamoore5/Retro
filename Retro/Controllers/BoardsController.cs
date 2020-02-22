@@ -22,14 +22,12 @@ namespace Retro.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<IBoard> Get()
-        {
-            return _service.GetBoards();
-        }
-
         [HttpGet("{id}")]
-        public ActionResult<Board> Get(long id)
+        public ActionResult<object> Get(long id = 0)
         {
+            if (id == 0)
+                return _service.GetBoards();
+
             var board = _service.GetBoard(id);
             if (board == null) return NotFound();
             return (Board) board;

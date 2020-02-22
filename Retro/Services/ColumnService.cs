@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -29,5 +30,14 @@ namespace Retro.Services
             var board = _boardService.GetBoard(boardId);
             return board == null ? null : new List<IColumn>();
         }
+
+        public List<IColumn> GetColumn(long boardId, string id)
+        {
+            var columns = GetColumns(boardId)
+                .Where(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase)).ToList();
+            return columns.Any() ? columns : null;
+        }
+
+
     }
 }

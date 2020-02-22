@@ -19,9 +19,9 @@ namespace Retro.Services
             };
         }
 
-        public IEnumerable<IBoard> GetBoards()
+        public List<IBoard> GetBoards()
         {
-            return _boards;
+            return _boards.ToList();
         }
 
         public IBoard GetBoard(long id)

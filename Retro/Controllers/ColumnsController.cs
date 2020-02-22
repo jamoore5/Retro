@@ -22,20 +22,12 @@ namespace Retro.Controllers
         }
 
         [HttpGet()]
-        public ActionResult<IEnumerable<IColumn>> Get(long boardId)
-        {
-
-            var columns = _service.GetColumns(boardId);
-            if (columns == null) return NotFound();
-            return columns;
-        }
-
         [HttpGet("{id}")]
-        public ActionResult<IColumn> Get(long boardId, string id)
+        public ActionResult<object> Get(long boardId, string id = null)
         {
-            var column = _service.GetColumns(boardId)?.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
-            if (column != null) return (Column) column;
-            return NotFound();
+            object data = (id == null) ? _service.GetColumns(boardId) : _service.GetColumn(boardId, id);
+            if (data == null) return NotFound();
+            return data;
         }
     }
 }
