@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Retro.Interfaces;
 using Retro.Models;
+using Retro.Services;
 
 namespace Retro.Controllers
 {
@@ -13,29 +14,23 @@ namespace Retro.Controllers
     [Produces("application/vnd.api+json")]
     public class BoardsController : ControllerBase
     {
-        private IEnumerable<IBoard> _boards;
+        private readonly BoardService _service;
 
-
-        public BoardsController()
+        public BoardsController(BoardService service)
         {
-            _boards = new List<IBoard>
-            {
-                new Board{Id = "Start", Name = "Start"},
-                new Board{Id = "Stop", Name = "Stop"},
-                new Board{Id = "Continue", Name = "Continue"}
-            };
+            _service = service;
         }
 
         [HttpGet]
         public IEnumerable<IBoard> Get()
         {
-            return _boards;
+            return _service.GetBoards();
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Board> Get(string id)
+        public ActionResult<Board> Get(long id)
         {
-            var board = _boards.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+            var board = _service.GetBoard(id);
             if (board == null) return NotFound();
             return (Board) board;
         }

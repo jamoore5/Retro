@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Retro.Formatters;
+using Retro.Services;
 
 namespace Retro
 {
@@ -27,6 +28,9 @@ namespace Retro
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<BoardService, BoardService>();
+            services.AddSingleton<ColumnService, ColumnService>();
+
             services.AddControllers();
             services.AddMvc(options => { options.OutputFormatters.Insert(0, new JsonapiOutputFormatter()); });
         }
