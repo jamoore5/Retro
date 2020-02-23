@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Retro.Interfaces;
 
@@ -5,13 +6,15 @@ namespace Retro.Services
 {
     public class RetroService : IRetroService
     {
-        private IBoardService _boardService;
-        private IColumnService _columnService;
+        private readonly IBoardService _boardService;
+        private readonly IColumnService _columnService;
+        private readonly ICardService _cardService;
 
-        public RetroService(IBoardService boardService, IColumnService columnService)
+        public RetroService(IBoardService boardService, IColumnService columnService, ICardService cardService)
         {
             _boardService = boardService;
             _columnService = columnService;
+            _cardService = cardService;
         }
 
 
@@ -48,6 +51,7 @@ namespace Retro.Services
         public void DeleteBoard(long id)
         {
             // TODO make transactional
+            _cardService.DeleteCards(id);
             _columnService.DeleteColumns(id);
             _boardService.DeleteBoard(id);
         }
@@ -55,6 +59,26 @@ namespace Retro.Services
         public void DeleteColumn(long boardId, string id)
         {
             _columnService.DeleteColumn(boardId, id);
+        }
+
+        public IEnumerable<ICard> GetCards(long boardId, string columnId)
+        {
+            return _cardService.GetCards(boardId, columnId);
+        }
+
+        public ICard GetCard(long boardId, string columnId, Guid id)
+        {
+            return _cardService.GetCard(boardId, columnId, id);
+        }
+
+        public void AddCard(long boardId, string columnId, ICard card)
+        {
+            _cardService.AddCard(boardId, columnId, card);
+        }
+
+        public void DeleteCard(long boardId, string columnId, Guid id)
+        {
+            _cardService.DeleteCard(boardId, columnId, id);
         }
     }
 }

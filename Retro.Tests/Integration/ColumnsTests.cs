@@ -26,7 +26,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync($"/boards/{board.Id}/columns");
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var columns = JsonSerializer.Deserialize<IEnumerable<Column>>(data, new JsonSerializerOptions());
             Assert.Equal(3, columns.Count());
@@ -42,7 +42,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync($"/boards/{board.Id}/columns");
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var columns = JsonSerializer.Deserialize<IEnumerable<Column>>(data, new JsonSerializerOptions());
             Assert.Empty(columns);
@@ -55,7 +55,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync("/boards/101/columns");
 
             // Assert
-            await AssertResponse.NotFound(response);
+            await AssertResponse.NotFoundAsync(response);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync($"/boards/{board.Id}/columns/start");
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var column = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
             Assert.Equal(board.Id, column.BoardId);
@@ -86,7 +86,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync($"/boards/{board.Id}/columns/start");
 
             // Assert
-            await AssertResponse.NotFound(response);
+            await AssertResponse.NotFoundAsync(response);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync("/boards/101/columns/start");
 
             // Assert
-            await AssertResponse.NotFound(response);
+            await AssertResponse.NotFoundAsync(response);
         }
 
         [Fact]
@@ -105,14 +105,12 @@ namespace Retro.Tests.Integration
             // Arrange
             var board = CreateBoard();
             var column = new Column{ Name = "Test Column"};
-            var json = JsonSerializer.Serialize(column);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync($"/boards/{board.Id}/columns", stringContent);
+            var response = await ClientPostAsync($"/boards/{board.Id}/columns", column);
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var createdColumn = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
             Assert.Equal(board.Id, createdColumn.BoardId);
@@ -126,14 +124,12 @@ namespace Retro.Tests.Integration
             // Arrange
             var board = CreateBoard();
             var column = new Column();
-            var json = JsonSerializer.Serialize(column);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync($"/boards/{board.Id}/columns", stringContent);
+            var response = await ClientPostAsync($"/boards/{board.Id}/columns", column);
 
             // Assert
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
 
         [Fact]
@@ -142,14 +138,12 @@ namespace Retro.Tests.Integration
             // Arrange
             var board = CreateBoard();
             var column = new Column{Id = "Test", Name = "Test Column"};
-            var json = JsonSerializer.Serialize(column);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync($"/boards/{board.Id}/columns", stringContent);
+            var response = await ClientPostAsync($"/boards/{board.Id}/columns", column);
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var createdColumn = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
             Assert.Equal(board.Id, createdColumn.BoardId);
@@ -163,14 +157,12 @@ namespace Retro.Tests.Integration
         {
             // Arrange
             var column = new Column{Id = "Test", Name = "Test Column"};
-            var json = JsonSerializer.Serialize(column);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync("/boards/101/columns", stringContent);
+            var response = await ClientPostAsync("/boards/101/columns", column);
 
             // Assert
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
 
         [Fact]
@@ -184,7 +176,7 @@ namespace Retro.Tests.Integration
             var response = await Client.DeleteAsync($"/boards/{board.Id}/columns/{column.Id}");
 
             // Assert
-            await AssertResponse.NoContentSuccess(response);
+            await AssertResponse.NoContentSuccessAsync(response);
 
             Assert.Empty(ColumnService.GetColumns(board.Id));
         }
@@ -199,7 +191,7 @@ namespace Retro.Tests.Integration
             var response = await Client.DeleteAsync($"/boards/{board.Id}/columns/start");
 
             // Assert
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
 
         [Fact]
@@ -209,7 +201,7 @@ namespace Retro.Tests.Integration
             var response = await Client.DeleteAsync($"/boards/101/columns/start");
 
             // Assert
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Retro.Interfaces
@@ -19,5 +20,10 @@ namespace Retro.Interfaces
         void DeleteBoard(long id);
 
         void DeleteColumn(long boardId, string id);
+
+        IEnumerable<ICard> GetCards(long boardId, string columnId);
+        ICard GetCard(long boardId, string columnId, Guid id);
+        void AddCard(long boardId, string columnId, ICard card);
+        void DeleteCard(long boardId, string columnId, Guid id);
     }
 }

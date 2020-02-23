@@ -10,9 +10,10 @@ namespace Retro.Tests.Integration
     {
         private const string JsonApiMediaType = "application/vnd.api+json";
 
-        public static async Task<string> Success(HttpResponseMessage response)
+        public static async Task<string> SuccessAsync(HttpResponseMessage response)
         {
             Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+            Assert.NotNull(response.Content.Headers.ContentType);
             Assert.Equal(JsonApiMediaType, response.Content.Headers.ContentType.MediaType);
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
@@ -21,26 +22,26 @@ namespace Retro.Tests.Integration
             return data.GetRawText();
         }
 
-        public static async Task NoContentSuccess(HttpResponseMessage response)
+        public static async Task NoContentSuccessAsync(HttpResponseMessage response)
         {
             Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
             Assert.Null(response.Content.Headers.ContentType);
             Assert.Equal(string.Empty, await response.Content.ReadAsStringAsync());
         }
 
-        public static async Task NotFound(HttpResponseMessage response)
+        public static async Task NotFoundAsync(HttpResponseMessage response)
         {
-            await AssertFailure(response);
+            await AssertFailureAsync(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        public static async Task BadRequest(HttpResponseMessage response)
+        public static async Task BadRequestAsync(HttpResponseMessage response)
         {
-            await AssertFailure(response);
+            await AssertFailureAsync(response);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        private static async Task AssertFailure(HttpResponseMessage response)
+        private static async Task AssertFailureAsync(HttpResponseMessage response)
         {
             Assert.False(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
             Assert.Equal(JsonApiMediaType, response.Content.Headers.ContentType.MediaType);

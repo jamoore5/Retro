@@ -29,7 +29,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync("/boards");
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var boards = JsonSerializer.Deserialize<IEnumerable<Board>>(data, new JsonSerializerOptions()).ToList();
             Assert.Equal(3, boards.Count());
@@ -48,7 +48,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync($"/boards/{board.Id}");
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var actual = JsonSerializer.Deserialize<Board>(data, new JsonSerializerOptions());
             Assert.Equal(board.Id, actual.Id);
@@ -61,7 +61,7 @@ namespace Retro.Tests.Integration
             var response = await Client.GetAsync("/boards/101");
 
             // Assert
-            await AssertResponse.NotFound(response);
+            await AssertResponse.NotFoundAsync(response);
         }
 
         [Fact]
@@ -69,14 +69,12 @@ namespace Retro.Tests.Integration
         {
             // Arrange
             var board = new Board {Name = "Test Board"};
-            var json = JsonSerializer.Serialize(board);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync("/boards", stringContent);
+            var response = await ClientPostAsync("/boards", board);
 
             // Assert
-            var data = await AssertResponse.Success(response);
+            var data = await AssertResponse.SuccessAsync(response);
 
             var createdBoard = JsonSerializer.Deserialize<Board>(data, new JsonSerializerOptions());
             Assert.Equal(4, createdBoard.Id);
@@ -88,14 +86,12 @@ namespace Retro.Tests.Integration
         {
             // Arrange
             var board = new Board();
-            var json = JsonSerializer.Serialize(board);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync("/boards", stringContent);
+            var response = await ClientPostAsync("/boards", board);
 
             // Assert
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
 
         [Fact]
@@ -103,14 +99,12 @@ namespace Retro.Tests.Integration
         {
             // Arrange
             var board = new Board{Id = 101, Name = "Test Board"};
-            var json = JsonSerializer.Serialize(board);
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await Client.PostAsync("/boards", stringContent);
+            var response = await ClientPostAsync("/boards", board);
 
             // Assert
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
 
         [Fact]
@@ -118,17 +112,21 @@ namespace Retro.Tests.Integration
         {
             // Arrange
             var board = CreateBoard();
+            var column = AddColumn(board);
             AddColumn(board);
             AddColumn(board);
-            AddColumn(board);
+            AddCard(column);
+            AddCard(column);
+            AddCard(column);
 
             // Act
             var response = await Client.DeleteAsync($"/boards/{board.Id}");
 
-            await AssertResponse.NoContentSuccess(response);
+            await AssertResponse.NoContentSuccessAsync(response);
 
             Assert.Throws<BoardNotFoundException>(() => BoardService.GetBoard(board.Id));
             Assert.Throws<BoardNotFoundException>(() => ColumnService.GetColumns(board.Id));
+            Assert.Throws<BoardNotFoundException>(() => CardService.GetCards(board.Id, column.Id));
         }
 
         [Fact]
@@ -137,7 +135,7 @@ namespace Retro.Tests.Integration
             // Act
             var response = await Client.DeleteAsync("/boards/101");
 
-            await AssertResponse.BadRequest(response);
+            await AssertResponse.BadRequestAsync(response);
         }
     }
 }

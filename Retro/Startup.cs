@@ -31,6 +31,7 @@ namespace Retro
         {
             services.AddSingleton<IBoardService, BoardService>();
             services.AddSingleton<IColumnService, ColumnService>();
+            services.AddSingleton<ICardService, CardService>();
             services.AddSingleton<IRetroService, RetroService>();
 
             services.AddControllers();
