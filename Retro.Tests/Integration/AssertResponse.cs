@@ -23,9 +23,20 @@ namespace Retro.Tests.Integration
 
         public static async Task AssertNotFound(HttpResponseMessage response)
         {
+            await AssertFailure(response);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        public static async Task AssertBadRequest(HttpResponseMessage response)
+        {
+            await AssertFailure(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        private static async Task AssertFailure(HttpResponseMessage response)
+        {
             Assert.False(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
             Assert.Equal(JsonApiMediaType, response.Content.Headers.ContentType.MediaType);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             Assert.True(json.RootElement.TryGetProperty("errors", out _), "Expected the contents to be wrapped in an `errors` property");

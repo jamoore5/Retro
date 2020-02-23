@@ -1,4 +1,6 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using Retro.Exceptions;
 using Retro.Interfaces;
 using Retro.Models;
 
@@ -26,6 +28,23 @@ namespace Retro.Controllers
             var board = _service.GetBoard(id);
             if (board == null) return NotFound();
             return (Board) board;
+        }
+
+        [HttpPost]
+        public ActionResult<Board> Create(Board board)
+        {
+            try
+            {
+                _service.AddBoard(board);
+                return board;
+            }
+            catch (UnsupportedClientGeneratedIdException ex)
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Title = ex.Message, Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+                });
+            }
         }
     }
 }

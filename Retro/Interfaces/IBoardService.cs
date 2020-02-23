@@ -7,5 +7,6 @@ namespace Retro.Interfaces
         List<IBoard> GetBoards();
 
         IBoard GetBoard(long id);
+        void AddBoard(IBoard board);
     }
 }

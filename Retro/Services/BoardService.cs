@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Retro.Exceptions;
 using Retro.Interfaces;
 using Retro.Models;
 
@@ -7,7 +9,8 @@ namespace Retro.Services
 {
     public class BoardService : IBoardService
     {
-        private IEnumerable<IBoard> _boards;
+        private List<IBoard> _boards;
+        private long _lastId = 3;
 
         public BoardService()
         {
@@ -27,6 +30,15 @@ namespace Retro.Services
         public IBoard GetBoard(long id)
         {
             return _boards.FirstOrDefault(x => x.Id == id);
+        }
+
+        public void AddBoard(IBoard board)
+        {
+            if (board.Id != 0)
+                throw new UnsupportedClientGeneratedIdException();
+
+            board.Id = ++_lastId;
+            _boards.Add(board);
         }
     }
 }
