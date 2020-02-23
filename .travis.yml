@@ -1,0 +1,9 @@
+language: csharp
+mono: none
+
+services:
+  - docker
+
+script:
+  - docker build -t retro .
+
