@@ -11,33 +11,22 @@ using Xunit;
 
 namespace Retro.Tests.Integration
 {
-    public class ColumnsTests : IDisposable
+    public class ColumnsTests  : ControllerTestBase
     {
-        private readonly WebApplicationFactory<Startup> _factory;
-        private readonly HttpClient _client;
-
-        public ColumnsTests()
-        {
-            _factory = new WebApplicationFactory<Startup>();
-
-            // Create an HttpClient which is setup for the test host
-            _client = _factory.CreateClient();
-        }
-
-        public void Dispose()
-        {
-            _factory.Dispose();
-            _client.Dispose();
-        }
-
         [Fact]
         public async Task GetColumnsTest()
         {
+            // Arrange
+            var board = CreateBoard();
+            AddColumn(board);
+            AddColumn(board);
+            AddColumn(board);
+
             // Act
-            var response = await _client.GetAsync("/boards/1/columns");
+            var response = await Client.GetAsync($"/boards/{board.Id}/columns");
 
             // Assert
-            var data = await AssertResponse.AssertSuccess(response);
+            var data = await AssertResponse.Success(response);
 
             var columns = JsonSerializer.Deserialize<IEnumerable<Column>>(data, new JsonSerializerOptions());
             Assert.Equal(3, columns.Count());
@@ -46,11 +35,14 @@ namespace Retro.Tests.Integration
         [Fact]
         public async Task GetColumns_BoardExistButNoColumns_Test()
         {
+            // Arrange
+            var board = CreateBoard();
+
             // Act
-            var response = await _client.GetAsync("/boards/2/columns");
+            var response = await Client.GetAsync($"/boards/{board.Id}/columns");
 
             // Assert
-            var data = await AssertResponse.AssertSuccess(response);
+            var data = await AssertResponse.Success(response);
 
             var columns = JsonSerializer.Deserialize<IEnumerable<Column>>(data, new JsonSerializerOptions());
             Assert.Empty(columns);
@@ -60,112 +52,164 @@ namespace Retro.Tests.Integration
         public async Task GetColumns_NonExistingBoard_Test()
         {
             // Act
-            var response = await _client.GetAsync("/boards/5/columns");
+            var response = await Client.GetAsync("/boards/101/columns");
 
             // Assert
-            await AssertResponse.AssertNotFound(response);
+            await AssertResponse.NotFound(response);
         }
 
         [Fact]
-        public async Task GetColumnTest()
+        public async Task GetColumn_Test()
         {
+            // Arrange
+            var board = CreateBoard();
+            ColumnService.AddColumn(board.Id, new Column{Id = "Start", Name = "Start"});
+
             // Act
-            var response = await _client.GetAsync("/boards/1/columns/start");
+            var response = await Client.GetAsync($"/boards/{board.Id}/columns/start");
 
             // Assert
-            var data = await AssertResponse.AssertSuccess(response);
+            var data = await AssertResponse.Success(response);
 
             var column = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
-            Assert.Equal(1, column.BoardId);
+            Assert.Equal(board.Id, column.BoardId);
             Assert.Equal("Start", column.Id);
         }
 
         [Fact]
         public async Task GetColumn_BoardExistButNoColumns_Test()
         {
+            // Arrange
+            var board = CreateBoard();
+
             // Act
-            var response = await _client.GetAsync("/boards/2/columns/start");
+            var response = await Client.GetAsync($"/boards/{board.Id}/columns/start");
 
             // Assert
-            await AssertResponse.AssertNotFound(response);
+            await AssertResponse.NotFound(response);
         }
 
         [Fact]
         public async Task GetColumn_NonExistingBoard_Test()
         {
             // Act
-            var response = await _client.GetAsync("/boards/5/columns/start");
+            var response = await Client.GetAsync("/boards/101/columns/start");
 
             // Assert
-            await AssertResponse.AssertNotFound(response);
+            await AssertResponse.NotFound(response);
         }
 
         [Fact]
-        public async Task CreateColumn()
+        public async Task CreateColumn_Test()
         {
+            // Arrange
+            var board = CreateBoard();
             var column = new Column{ Name = "Test Column"};
             var json = JsonSerializer.Serialize(column);
             var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await _client.PostAsync("/boards/1/columns", stringContent);
+            var response = await Client.PostAsync($"/boards/{board.Id}/columns", stringContent);
 
             // Assert
-            var data = await AssertResponse.AssertSuccess(response);
+            var data = await AssertResponse.Success(response);
 
             var createdColumn = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
-            Assert.Equal(1, createdColumn.BoardId);
+            Assert.Equal(board.Id, createdColumn.BoardId);
             Assert.Equal("Test Column", createdColumn.Name);
             Assert.False(string.IsNullOrEmpty(createdColumn.Id), "Expected the Id to be set");
         }
 
         [Fact]
-        public async Task CreateColumn_NameRequired()
+        public async Task CreateColumn_NameRequired_Test()
         {
+            // Arrange
+            var board = CreateBoard();
             var column = new Column();
             var json = JsonSerializer.Serialize(column);
             var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await _client.PostAsync("/boards/1/columns", stringContent);
+            var response = await Client.PostAsync($"/boards/{board.Id}/columns", stringContent);
 
             // Assert
-            await AssertResponse.AssertBadRequest(response);
+            await AssertResponse.BadRequest(response);
         }
 
         [Fact]
-        public async Task CreateBoard_ClientGeneratedId()
+        public async Task CreateBoard_ClientGeneratedId_Test()
         {
+            // Arrange
+            var board = CreateBoard();
             var column = new Column{Id = "Test", Name = "Test Column"};
             var json = JsonSerializer.Serialize(column);
             var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await _client.PostAsync("/boards/1/columns", stringContent);
+            var response = await Client.PostAsync($"/boards/{board.Id}/columns", stringContent);
 
             // Assert
-            var data = await AssertResponse.AssertSuccess(response);
+            var data = await AssertResponse.Success(response);
 
             var createdColumn = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
-            Assert.Equal(1, createdColumn.BoardId);
+            Assert.Equal(board.Id, createdColumn.BoardId);
             Assert.Equal("Test Column", createdColumn.Name);
             Assert.Equal("Test", createdColumn.Id);
 
         }
 
         [Fact]
-        public async Task CreateBoard_NonExistingBoard()
+        public async Task CreateBoard_NonExistingBoard_Test()
         {
+            // Arrange
             var column = new Column{Id = "Test", Name = "Test Column"};
             var json = JsonSerializer.Serialize(column);
             var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
 
             // Act
-            var response = await _client.PostAsync("/boards/5/columns", stringContent);
+            var response = await Client.PostAsync("/boards/101/columns", stringContent);
 
             // Assert
-            await AssertResponse.AssertBadRequest(response);
+            await AssertResponse.BadRequest(response);
         }
 
+        [Fact]
+        public async Task DeleteColumn_Test()
+        {
+            // Arrange
+            var board = CreateBoard();
+            var column = AddColumn(board);
+
+            // Act
+            var response = await Client.DeleteAsync($"/boards/{board.Id}/columns/{column.Id}");
+
+            // Assert
+            await AssertResponse.NoContentSuccess(response);
+
+            Assert.Empty(ColumnService.GetColumns(board.Id));
+        }
+
+        [Fact]
+        public async Task DeleteColumn_NonExistingColumn_Test()
+        {
+            // Arrange
+            var board = CreateBoard();
+
+            // Act
+            var response = await Client.DeleteAsync($"/boards/{board.Id}/columns/start");
+
+            // Assert
+            await AssertResponse.BadRequest(response);
+        }
+
+        [Fact]
+        public async Task DeleteColumn_NonExistingBoard_Test()
+        {
+            // Act
+            var response = await Client.DeleteAsync($"/boards/101/columns/start");
+
+            // Assert
+            await AssertResponse.BadRequest(response);
+        }
     }
 }

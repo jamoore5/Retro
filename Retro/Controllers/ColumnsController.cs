@@ -47,5 +47,19 @@ namespace Retro.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [HttpDelete("{id}")]
+        public ActionResult Delete(long boardId, string id)
+        {
+            try
+            {
+                _service.DeleteColumn(boardId, id);
+                return Ok();
+            }
+            catch (NotFoundException ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

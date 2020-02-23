@@ -11,9 +11,9 @@ namespace Retro.Controllers
     [Produces("application/vnd.api+json")]
     public class BoardsController : RetroControllerBase
     {
-        private readonly IBoardService _service;
+        private readonly IRetroService _service;
 
-        public BoardsController(IBoardService service)
+        public BoardsController(IRetroService service)
         {
             _service = service;
         }
@@ -44,6 +44,20 @@ namespace Retro.Controllers
                 return board;
             }
             catch (UnsupportedClientGeneratedIdException ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult Delete(long id)
+        {
+            try
+            {
+                _service.DeleteBoard(id);
+                return Ok();
+            }
+            catch (BoardNotFoundException ex)
             {
                 return BadRequest(ex);
             }

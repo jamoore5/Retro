@@ -10,7 +10,7 @@ namespace Retro.Tests.Integration
     {
         private const string JsonApiMediaType = "application/vnd.api+json";
 
-        public static async Task<string> AssertSuccess(HttpResponseMessage response)
+        public static async Task<string> Success(HttpResponseMessage response)
         {
             Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
             Assert.Equal(JsonApiMediaType, response.Content.Headers.ContentType.MediaType);
@@ -21,13 +21,20 @@ namespace Retro.Tests.Integration
             return data.GetRawText();
         }
 
-        public static async Task AssertNotFound(HttpResponseMessage response)
+        public static async Task NoContentSuccess(HttpResponseMessage response)
+        {
+            Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+            Assert.Null(response.Content.Headers.ContentType);
+            Assert.Equal(string.Empty, await response.Content.ReadAsStringAsync());
+        }
+
+        public static async Task NotFound(HttpResponseMessage response)
         {
             await AssertFailure(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        public static async Task AssertBadRequest(HttpResponseMessage response)
+        public static async Task BadRequest(HttpResponseMessage response)
         {
             await AssertFailure(response);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

@@ -8,5 +8,6 @@ namespace Retro.Interfaces
 
         IBoard GetBoard(long id);
         void AddBoard(IBoard board);
+        void DeleteBoard(long id);
     }
 }

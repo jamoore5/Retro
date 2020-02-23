@@ -14,12 +14,7 @@ namespace Retro.Services
 
         public BoardService()
         {
-            _boards = new List<IBoard>
-            {
-                new Board{Id = 1, Name = "Sprint 1"},
-                new Board{Id = 2, Name = "Sprint 2"},
-                new Board{Id = 3, Name = "Sprint 3"}
-            };
+            _boards = new List<IBoard>();
         }
 
         public List<IBoard> GetBoards()
@@ -41,6 +36,11 @@ namespace Retro.Services
 
             board.Id = ++_lastId;
             _boards.Add(board);
+        }
+
+        public void DeleteBoard(long id)
+        {
+            _boards.Remove(GetBoard(id));
         }
     }
 }

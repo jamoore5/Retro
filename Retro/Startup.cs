@@ -31,6 +31,7 @@ namespace Retro
         {
             services.AddSingleton<IBoardService, BoardService>();
             services.AddSingleton<IColumnService, ColumnService>();
+            services.AddSingleton<IRetroService, RetroService>();
 
             services.AddControllers();
             services.AddMvc(options => { options.OutputFormatters.Insert(0, new JsonapiOutputFormatter()); });

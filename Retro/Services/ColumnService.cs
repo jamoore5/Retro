@@ -15,12 +15,7 @@ namespace Retro.Services
 
         public ColumnService(IBoardService boardService)
         {
-            _columns = new List<IColumn>{
-                new Column{Id = "Start", BoardId = 1, Name = "Start"},
-                new Column{Id = "Stop", BoardId = 1, Name = "Stop"},
-                new Column{Id = "Continue", BoardId = 1, Name = "Continue"}
-            };
-
+            _columns = new List<IColumn>();
             _boardService = boardService;
         }
         public List<IColumn> GetColumns(long boardId)
@@ -49,6 +44,16 @@ namespace Retro.Services
             column.BoardId = boardId;
 
             _columns.Add(column);
+        }
+
+        public void DeleteColumns(long boardId)
+        {
+            _columns.RemoveAll(x => x.BoardId == boardId);
+        }
+
+        public void DeleteColumn(long boardId, string id)
+        {
+            _columns.Remove(GetColumn(boardId, id));
         }
     }
 }
