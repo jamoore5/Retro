@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Retro.Exceptions;
 using Retro.Interfaces;
+using Retro.Models;
 
 namespace Retro.Services
 {
@@ -18,14 +21,32 @@ namespace Retro.Services
         }
 
 
-        public List<IBoard> GetBoards()
+        public IEnumerable<IBoard> GetBoards()
         {
-            return _boardService.GetBoards();
+            return _boardService.GetBoards().ToList();
         }
 
-        public IBoard GetBoard(long id)
+        public IBoard GetBoard(long id, bool includeColumns = false, bool includeCards = false)
         {
-            return _boardService.GetBoard(id);
+            if (includeCards && !includeColumns)
+                throw new InvalidIncludeException();
+
+            var board = _boardService.GetBoard(id).Clone();
+
+            if (includeColumns)
+            {
+                var columns = _columnService.GetColumns(id).Select(x => x.Clone()).ToList();
+                if (includeCards)
+                {
+                    foreach (var column in columns)
+                    {
+                        column.Cards = _cardService.GetCards(id, column.Id).Select(x => (Card)x);
+                    }
+                }
+                board.Columns = columns;
+            }
+
+            return board;
         }
 
         public void AddBoard(IBoard board)
@@ -33,7 +54,7 @@ namespace Retro.Services
             _boardService.AddBoard(board);
         }
 
-        public List<IColumn> GetColumns(long boardId)
+        public IEnumerable<IColumn> GetColumns(long boardId)
         {
             return _columnService.GetColumns(boardId);
         }

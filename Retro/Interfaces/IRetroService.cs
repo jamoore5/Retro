@@ -5,13 +5,13 @@ namespace Retro.Interfaces
 {
     public interface IRetroService
     {
-        List<IBoard> GetBoards();
+        IEnumerable<IBoard> GetBoards();
 
-        IBoard GetBoard(long id);
+        IBoard GetBoard(long id, bool includeColumns = false, bool includeCards = false);
 
         void AddBoard(IBoard board);
 
-        List<IColumn> GetColumns(long boardId);
+        IEnumerable<IColumn> GetColumns(long boardId);
 
         IColumn GetColumn(long boardId, string id);
 

@@ -10,7 +10,7 @@ namespace Retro.Services
     public class BoardService : IBoardService
     {
         private List<IBoard> _boards;
-        private long _lastId = 3;
+        private long _lastId = 0;
 
         public BoardService()
         {

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Retro.Exceptions;
@@ -19,19 +22,35 @@ namespace Retro.Controllers
         }
 
         [HttpGet]
-        [HttpGet("{id}")]
-        public ActionResult<object> Get(long id = 0)
+        public ActionResult<object> Get()
         {
-            if (id == 0)
-                return _service.GetBoards();
+            return _service.GetBoards().ToList();
+        }
 
+        [HttpGet("{id}")]
+        public ActionResult<object> Get(long id, string include = "")
+        {
             try
             {
-                return (Board) _service.GetBoard(id);
+                if (string.IsNullOrWhiteSpace(include))
+                    return (Board) _service.GetBoard(id);
+
+                var includeList = include.Split(',').ToList();
+                var includeColumns = includeList.Exists(IncludeColumns);
+                var includeCards = includeList.Exists(IncludeCards);
+
+                if (includeCards && !includeColumns)
+                    throw new InvalidIncludeException();
+
+                return (Board) _service.GetBoard(id, includeColumns, includeCards);
             }
             catch (BoardNotFoundException ex)
             {
                 return NotFound(ex);
+            }
+            catch (InvalidIncludeException ex)
+            {
+                return BadRequest(ex);
             }
         }
 
@@ -61,6 +80,21 @@ namespace Retro.Controllers
             {
                 return BadRequest(ex);
             }
+        }
+
+        private static bool InvalidInclude(string x)
+        {
+            return !IncludeColumns(x) && !IncludeCards(x);
+        }
+
+        private static bool IncludeColumns(string x)
+        {
+            return x.Equals("columns", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        private static bool IncludeCards(string x)
+        {
+            return x.Equals("cards", StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

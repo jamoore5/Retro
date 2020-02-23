@@ -17,7 +17,7 @@ namespace Retro.Formatters
             SupportedMediaTypes.Add("application/vnd.api+json");
             SupportedEncodings.Add(Encoding.UTF8);
             SupportedEncodings.Add(Encoding.Unicode);
-            _formatter = new SystemTextJsonOutputFormatter(new JsonSerializerOptions());
+            _formatter = new SystemTextJsonOutputFormatter(new JsonSerializerOptions{IgnoreNullValues = true});
         }
 
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Retro.Exceptions;
 using Retro.Interfaces;
@@ -25,7 +26,7 @@ namespace Retro.Controllers
             try
             {
                 if (id == null)
-                    return _service.GetColumns(boardId);
+                    return _service.GetColumns(boardId).ToList();
                 return (Column) _service.GetColumn(boardId, id);
             }
             catch (NotFoundException ex)

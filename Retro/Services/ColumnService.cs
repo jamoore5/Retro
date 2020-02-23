@@ -18,7 +18,7 @@ namespace Retro.Services
             _columns = new List<IColumn>();
             _boardService = boardService;
         }
-        public List<IColumn> GetColumns(long boardId)
+        public IEnumerable<IColumn> GetColumns(long boardId)
         {
             var columns = _columns.Where(x => x.BoardId == boardId).ToList();
             if (columns.Any()) return columns;
