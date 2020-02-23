@@ -31,11 +31,10 @@ namespace Retro.Services
             return board == null ? null : new List<IColumn>();
         }
 
-        public List<IColumn> GetColumn(long boardId, string id)
+        public IColumn GetColumn(long boardId, string id)
         {
-            var columns = GetColumns(boardId)
-                ?.Where(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase)).ToList();
-            return (columns != null && columns.Any()) ? columns : null;
+            return GetColumns(boardId)
+                ?.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

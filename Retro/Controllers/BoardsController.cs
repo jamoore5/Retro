@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Retro.Interfaces;
 using Retro.Models;
-using Retro.Services;
 
 namespace Retro.Controllers
 {

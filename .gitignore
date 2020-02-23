@@ -2,3 +2,5 @@
 .DS_Store
 Retro/bin/
 Retro/obj/
+Retro.Tests/bin/
+Retro.Tests/obj/

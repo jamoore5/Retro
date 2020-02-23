@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,13 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Retro.Interfaces;
 
 namespace Retro.Formatters
 {
     public class JsonapiOutputFormatter : TextOutputFormatter
     {
-        private SystemTextJsonOutputFormatter _formatter;
+        private readonly SystemTextJsonOutputFormatter _formatter;
         public JsonapiOutputFormatter()
         {
             SupportedMediaTypes.Add("application/vnd.api+json");
@@ -58,10 +56,7 @@ namespace Retro.Formatters
             using (var writer = new Utf8JsonWriter(stream))
             {
                 if (context.ContentTypeIsServerDefined)
-                    if (data is ProblemDetails)
-                        WriteErrors(writer, data, options);
-                    else
-                        WriteData(writer, data, options);
+                    WriteWrappedData(writer, data, options, isError: (data is ProblemDetails));
                 else
                     JsonSerializer.Serialize(writer, data, options);
 
@@ -72,35 +67,11 @@ namespace Retro.Formatters
             return stream;
         }
 
-        private static void WriteData(Utf8JsonWriter writer, object data, JsonSerializerOptions options)
+        private static void WriteWrappedData(Utf8JsonWriter writer, object content, JsonSerializerOptions options, bool isError = false)
         {
-            writer.WriteStartObject();
-            writer.WriteStartArray("data");
-
-            if (data is IEnumerable<object> dataItems)
-            {
-                foreach (var item in dataItems)
-                {
-                    JsonSerializer.Serialize(writer, item, options);
-                }
-            }
-            else
-            {
-                JsonSerializer.Serialize(writer, data, options);
-            }
-
-            writer.WriteEndArray();
-            writer.WriteEndObject();
+            var rootProperty = (isError) ? "errors" : "data";
+            var wrappedData = new Dictionary<string, object>{{rootProperty, content}};
+            JsonSerializer.Serialize(writer, wrappedData, options);
         }
-
-        private static void WriteErrors(Utf8JsonWriter writer, object data, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-            writer.WriteStartArray("errors");
-            JsonSerializer.Serialize(writer, data, options);
-            writer.WriteEndArray();
-            writer.WriteEndObject();
-        }
-
     }
 }

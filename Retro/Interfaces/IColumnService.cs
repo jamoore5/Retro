@@ -6,6 +6,6 @@ namespace Retro.Interfaces
     {
         List<IColumn> GetColumns(long boardId);
 
-        List<IColumn> GetColumn(long boardId, string id);
+        IColumn GetColumn(long boardId, string id);
     }
 }

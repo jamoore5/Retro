@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Retro.Interfaces;
-using Retro.Models;
-using Retro.Services;
 
 namespace Retro.Controllers
 {
@@ -24,8 +19,14 @@ namespace Retro.Controllers
         [HttpGet("{id}")]
         public ActionResult<object> Get(long boardId, string id = null)
         {
-            object data = (id == null) ? _service.GetColumns(boardId) : _service.GetColumn(boardId, id);
-            if (data == null) return NotFound();
+            object data;
+            if (id == null)
+                data = _service.GetColumns(boardId);
+            else
+                data = _service.GetColumn(boardId, id);
+
+            if (data == null)
+                return NotFound();
             return data;
         }
     }
