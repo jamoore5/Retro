@@ -14,9 +14,9 @@ namespace Retro.Controllers
     [Produces("application/vnd.api+json")]
     public class BoardsController : ControllerBase
     {
-        private readonly BoardService _service;
+        private readonly IBoardService _service;
 
-        public BoardsController(BoardService service)
+        public BoardsController(IBoardService service)
         {
             _service = service;
         }

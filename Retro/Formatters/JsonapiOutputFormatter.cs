@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Retro.Interfaces;
 
@@ -57,7 +58,10 @@ namespace Retro.Formatters
             using (var writer = new Utf8JsonWriter(stream))
             {
                 if (context.ContentTypeIsServerDefined)
-                    WriteData(writer, data, options);
+                    if (data is ProblemDetails)
+                        WriteErrors(writer, data, options);
+                    else
+                        WriteData(writer, data, options);
                 else
                     JsonSerializer.Serialize(writer, data, options);
 
@@ -85,6 +89,15 @@ namespace Retro.Formatters
                 JsonSerializer.Serialize(writer, data, options);
             }
 
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+        }
+
+        private static void WriteErrors(Utf8JsonWriter writer, object data, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            writer.WriteStartArray("errors");
+            JsonSerializer.Serialize(writer, data, options);
             writer.WriteEndArray();
             writer.WriteEndObject();
         }

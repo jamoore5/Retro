@@ -5,7 +5,7 @@ using Retro.Models;
 
 namespace Retro.Services
 {
-    public class BoardService
+    public class BoardService : IBoardService
     {
         private IEnumerable<IBoard> _boards;
 

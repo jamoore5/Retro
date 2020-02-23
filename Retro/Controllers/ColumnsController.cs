@@ -13,10 +13,9 @@ namespace Retro.Controllers
     [Produces("application/vnd.api+json")]
     public class ColumnsController : ControllerBase
     {
-        private readonly ColumnService _service;
+        private readonly IColumnService _service;
 
-
-        public ColumnsController(ColumnService service)
+        public ColumnsController(IColumnService service)
         {
             _service = service;
         }

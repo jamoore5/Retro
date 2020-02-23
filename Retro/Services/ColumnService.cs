@@ -7,12 +7,12 @@ using Retro.Models;
 
 namespace Retro.Services
 {
-    public class ColumnService
+    public class ColumnService : IColumnService
     {
         private readonly IEnumerable<IColumn> _columns;
-        private readonly BoardService _boardService;
+        private readonly IBoardService _boardService;
 
-        public ColumnService(BoardService boardService)
+        public ColumnService(IBoardService boardService)
         {
             _columns = new List<IColumn>{
                 new Column{Id = "Start", BoardId = 1, Name = "Start"},
@@ -34,10 +34,8 @@ namespace Retro.Services
         public List<IColumn> GetColumn(long boardId, string id)
         {
             var columns = GetColumns(boardId)
-                .Where(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase)).ToList();
-            return columns.Any() ? columns : null;
+                ?.Where(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase)).ToList();
+            return (columns != null && columns.Any()) ? columns : null;
         }
-
-
     }
 }
