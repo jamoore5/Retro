@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Retro.Exceptions;
 using Retro.Interfaces;
 using Retro.Models;
 
@@ -9,7 +10,7 @@ namespace Retro.Services
 {
     public class ColumnService : IColumnService
     {
-        private readonly IEnumerable<IColumn> _columns;
+        private readonly List<IColumn> _columns;
         private readonly IBoardService _boardService;
 
         public ColumnService(IBoardService boardService)
@@ -33,8 +34,21 @@ namespace Retro.Services
 
         public IColumn GetColumn(long boardId, string id)
         {
-            return GetColumns(boardId)
-                ?.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+            var column =  GetColumns(boardId).FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+            if (column == null) throw new ColumnNotFoundException(id);
+            return column;
+        }
+
+        public void AddColumn(long boardId, IColumn column)
+        {
+            _boardService.GetBoard(boardId);
+
+            if (string.IsNullOrWhiteSpace(column.Id))
+                column.Id = Guid.NewGuid().ToString();
+
+            column.BoardId = boardId;
+
+            _columns.Add(column);
         }
     }
 }

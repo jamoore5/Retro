@@ -29,7 +29,9 @@ namespace Retro.Services
 
         public IBoard GetBoard(long id)
         {
-            return _boards.FirstOrDefault(x => x.Id == id);
+            var board = _boards.FirstOrDefault(x => x.Id == id);
+            if (board == null) throw new BoardNotFoundException(id);
+            return board;
         }
 
         public void AddBoard(IBoard board)

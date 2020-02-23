@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Retro.Interfaces;
 
 namespace Retro.Models
@@ -7,6 +8,8 @@ namespace Retro.Models
         public string Id { get; set; }
 
         public long BoardId { get; set; }
+
+        [Required]
         public string Name { get; set; }
     }
 }

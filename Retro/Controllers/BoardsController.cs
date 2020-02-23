@@ -9,7 +9,7 @@ namespace Retro.Controllers
     [ApiController]
     [Route("[controller]")]
     [Produces("application/vnd.api+json")]
-    public class BoardsController : ControllerBase
+    public class BoardsController : RetroControllerBase
     {
         private readonly IBoardService _service;
 
@@ -25,9 +25,14 @@ namespace Retro.Controllers
             if (id == 0)
                 return _service.GetBoards();
 
-            var board = _service.GetBoard(id);
-            if (board == null) return NotFound();
-            return (Board) board;
+            try
+            {
+                return (Board) _service.GetBoard(id);
+            }
+            catch (BoardNotFoundException ex)
+            {
+                return NotFound(ex);
+            }
         }
 
         [HttpPost]
@@ -40,10 +45,7 @@ namespace Retro.Controllers
             }
             catch (UnsupportedClientGeneratedIdException ex)
             {
-                return BadRequest(new ProblemDetails
-                {
-                    Title = ex.Message, Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
-                });
+                return BadRequest(ex);
             }
         }
     }

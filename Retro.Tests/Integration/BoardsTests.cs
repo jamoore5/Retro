@@ -77,6 +77,7 @@ namespace Retro.Tests.Integration
             // Act
             var response = await _client.PostAsync("/boards", stringContent);
 
+            // Assert
             var data = await AssertResponse.AssertSuccess(response);
 
             var createdBoard = JsonSerializer.Deserialize<Board>(data, new JsonSerializerOptions());

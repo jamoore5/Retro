@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Retro.Models;
 
 namespace Retro.Interfaces
 {
@@ -7,5 +8,6 @@ namespace Retro.Interfaces
         List<IColumn> GetColumns(long boardId);
 
         IColumn GetColumn(long boardId, string id);
+        void AddColumn(long boardId, IColumn column);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -97,6 +98,73 @@ namespace Retro.Tests.Integration
 
             // Assert
             await AssertResponse.AssertNotFound(response);
+        }
+
+        [Fact]
+        public async Task CreateColumn()
+        {
+            var column = new Column{ Name = "Test Column"};
+            var json = JsonSerializer.Serialize(column);
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+
+            // Act
+            var response = await _client.PostAsync("/boards/1/columns", stringContent);
+
+            // Assert
+            var data = await AssertResponse.AssertSuccess(response);
+
+            var createdColumn = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
+            Assert.Equal(1, createdColumn.BoardId);
+            Assert.Equal("Test Column", createdColumn.Name);
+            Assert.False(string.IsNullOrEmpty(createdColumn.Id), "Expected the Id to be set");
+        }
+
+        [Fact]
+        public async Task CreateColumn_NameRequired()
+        {
+            var column = new Column();
+            var json = JsonSerializer.Serialize(column);
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+
+            // Act
+            var response = await _client.PostAsync("/boards/1/columns", stringContent);
+
+            // Assert
+            await AssertResponse.AssertBadRequest(response);
+        }
+
+        [Fact]
+        public async Task CreateBoard_ClientGeneratedId()
+        {
+            var column = new Column{Id = "Test", Name = "Test Column"};
+            var json = JsonSerializer.Serialize(column);
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+
+            // Act
+            var response = await _client.PostAsync("/boards/1/columns", stringContent);
+
+            // Assert
+            var data = await AssertResponse.AssertSuccess(response);
+
+            var createdColumn = JsonSerializer.Deserialize<Column>(data, new JsonSerializerOptions());
+            Assert.Equal(1, createdColumn.BoardId);
+            Assert.Equal("Test Column", createdColumn.Name);
+            Assert.Equal("Test", createdColumn.Id);
+
+        }
+
+        [Fact]
+        public async Task CreateBoard_NonExistingBoard()
+        {
+            var column = new Column{Id = "Test", Name = "Test Column"};
+            var json = JsonSerializer.Serialize(column);
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+
+            // Act
+            var response = await _client.PostAsync("/boards/5/columns", stringContent);
+
+            // Assert
+            await AssertResponse.AssertBadRequest(response);
         }
 
     }
